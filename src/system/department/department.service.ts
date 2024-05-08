@@ -60,7 +60,7 @@ export class DepartmentService {
         })
         .catch(() => {
           throw new BusinessException({
-            code: BUSINESS_ERROR_CODE.DEPARTMENT_UPDATE_FAILED,
+            code: BUSINESS_ERROR_CODE.UPDATE_FAILED,
             message: '部门更新失败。',
           });
         });
@@ -79,7 +79,7 @@ export class DepartmentService {
       }
     } else {
       throw new BusinessException({
-        code: BUSINESS_ERROR_CODE.DEPARTMENT_NO_EXIST,
+        code: BUSINESS_ERROR_CODE.NO_EXIST,
         message: '部门不存在。',
       });
     }
