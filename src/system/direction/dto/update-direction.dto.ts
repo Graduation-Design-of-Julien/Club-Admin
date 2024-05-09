@@ -8,4 +8,7 @@ export class UpdateDirectionDto extends PartialType(CreateDirectionDto) {
 
   @IsNotEmpty({ message: '岗位名称不能为空。' })
   directionName: string;
+
+  @IsNotEmpty({ message: '岗位ID不能为空。' })
+  departmentCode: number;
 }
