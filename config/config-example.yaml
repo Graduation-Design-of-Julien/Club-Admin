@@ -1,0 +1,20 @@
+# 配置文件，使用时需要改动将文件改为config.yaml并填上对应数据即可使用
+MYSQL_CONFIG:
+  # 数据库类型
+  type: 'mysql'
+  # 数据库 Url
+  host: 'localhost'
+  # 数据库端口
+  port: 3306
+  # 数据库用户名
+  username: 'root'
+  # 数据库密码
+  password: ''
+  # 数据库库名
+  database: 'cms'
+
+JWT_CONFIG:
+  # jwt密钥
+  secretKey: ''
+  # jwt有效期
+  expiresTime: '8h'
