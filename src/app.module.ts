@@ -10,6 +10,7 @@ import { getConfig } from './common/utils/configLoader';
 import { UserModule } from './system/user/user.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/auth.guard';
+import { NotificationModule } from './system/notification/notification.module';
 
 // load mysql config
 const { MYSQL_CONFIG } = getConfig();
@@ -30,6 +31,7 @@ const { MYSQL_CONFIG } = getConfig();
     CollegeModule,
     MojarModule,
     UserModule,
+    NotificationModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
