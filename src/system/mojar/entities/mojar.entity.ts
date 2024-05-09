@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -15,8 +14,8 @@ export class Mojar {
   @Column()
   mojarName: string;
 
-  @JoinColumn({ referencedColumnName: 'collegeCode' })
-  collegeCode: number;
+  @Column()
+  college: string;
 
   @CreateDateColumn()
   createTime: Date;

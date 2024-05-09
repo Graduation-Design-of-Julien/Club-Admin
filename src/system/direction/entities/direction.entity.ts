@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -15,8 +14,8 @@ export class Direction {
   @Column()
   directionName: string;
 
-  @JoinColumn({ referencedColumnName: 'departmentCode' })
-  departmentCode: number;
+  @Column()
+  departmentCode: string;
 
   @CreateDateColumn()
   createTime: Date;
