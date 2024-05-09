@@ -17,9 +17,19 @@ export class DepartmentService {
 
   // 添加部门
   async createDepartment(createDepartmentDto: CreateDepartmentDto) {
-    const result = await this.departmentRepository.save(createDepartmentDto);
-    if (result) {
-      return;
+    const existDepartment = await this.findDepartmentByName(
+      createDepartmentDto.departmentName,
+    );
+    if (existDepartment) {
+      throw new BusinessException({
+        code: BUSINESS_ERROR_CODE.EXISTED,
+        message: '部门已存在。',
+      });
+    } else {
+      const result = await this.departmentRepository.save(createDepartmentDto);
+      if (result) {
+        return;
+      }
     }
   }
 
