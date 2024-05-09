@@ -1,73 +1,62 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Club Admin 社团管理系统
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+基于TypeScript语言的社团管理系统的设计与实现
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 前言
 
-## Description
+1. 本项目为学生毕业设计作品，项目代码除框架外均为原创。
+2. 如果使用本项目，请遵守开源协议。
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 技术栈
 
-## Installation
+- TypeScript
+- Nest.js
 
-```bash
-$ pnpm install
+## 包管理
+
+- pnpm
+
+## 版本管理
+
+- git/Github
+
+## 下载并启动调试
+
+```sh
+# 从GitHub中克隆项目
+git clone https://github.com/Graduation-Design-of-Julien/Club-Admin.git
+
+# 进入项目并下载依赖
+npm install -g pnpm
+cd Club-Admin
+pnpm install
+
+# 启动项目调试
+pnpm run start:dev
 ```
 
-## Running the app
+在启动调试之前，请将`Club-Admin/config/`内的example按照文件说明填入您的信息才可使用。
 
-```bash
-# development
-$ pnpm run start
+## 打包并在生产环境中使用
 
-# watch mode
-$ pnpm run start:dev
+```sh
+# 打包项目
+pnpm run build
 
-# production mode
-$ pnpm run start:prod
+# 打包完成后文件夹内会有一个main.js
+# 使用你所熟悉的持久化工具启动main.js即可完成部署
+# 如forever
+forever main.js
+
+# 或者使用node命令在控制台启动项目
+# 注意，这需要你的Node.js版本>= 12, v13 版本除外
+node main.js
 ```
-
-## Test
-
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+- Apache
+
+## 免责声明
+
+- 使用本项目或对本项目进行二次开发后出现的一切法律问题与项目作者本人无关。
