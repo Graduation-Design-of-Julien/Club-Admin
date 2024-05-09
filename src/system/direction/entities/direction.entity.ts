@@ -15,7 +15,7 @@ export class Direction {
   directionName: string;
 
   @Column()
-  departmentCode: string;
+  departmentCode: number;
 
   @CreateDateColumn()
   createTime: Date;
