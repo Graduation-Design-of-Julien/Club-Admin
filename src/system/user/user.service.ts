@@ -80,6 +80,8 @@ export class UserService {
         'departmentCode',
         'directionCode',
         'userRole',
+        'createTime',
+        'changeTime',
       ],
     });
   }
@@ -231,6 +233,8 @@ export class UserService {
         'departmentCode',
         'directionCode',
         'userRole',
+        'createTime',
+        'changeTime',
       ],
     });
   }
