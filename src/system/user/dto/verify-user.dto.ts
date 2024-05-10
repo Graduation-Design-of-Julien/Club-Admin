@@ -6,6 +6,4 @@ export class VerifyUserDto {
 
   @IsNotEmpty()
   phoneNum: string;
-
-  verifyCode: string;
 }

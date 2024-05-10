@@ -3,6 +3,7 @@ import { MojarService } from './mojar.service';
 import { CreateMojarDto } from './dto/create-mojar.dto';
 import { UpdateMojarDto } from './dto/update-mojar.dto';
 import { DeleteMojarDto } from './dto/delete-mojar.dto';
+import { Public } from 'src/common/decorator/public.decorator';
 
 @Controller('mojar')
 export class MojarController {
@@ -19,6 +20,7 @@ export class MojarController {
   }
 
   @Post('get')
+  @Public()
   async get() {
     return this.mojarService.getAllMojars();
   }

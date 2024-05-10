@@ -3,6 +3,7 @@ import { DepartmentService } from './department.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
 import { DeleteDepartmentDto } from './dto/delete-department.dto';
+import { Public } from 'src/common/decorator/public.decorator';
 
 @Controller('department')
 export class DepartmentController {
@@ -19,6 +20,7 @@ export class DepartmentController {
   }
 
   @Post('get')
+  @Public()
   async get() {
     return this.departmentService.getAllDepartments();
   }

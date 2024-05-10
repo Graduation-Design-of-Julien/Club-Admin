@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as session from 'express-session';
 import { TransformInterceptor } from './common/interceptor/transform.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/exceptions/base.exception.filter';
@@ -16,16 +15,6 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   // 全局异常过滤器
   app.useGlobalFilters(new AllExceptionsFilter(), new HttpExceptionFilter());
-
-  // 使用session
-  app.use(
-    session({
-      secret: 'cms-secret',
-      resave: false,
-      saveUninitialized: false,
-      rolling: true,
-    }),
-  );
 
   app.enableCors();
   await app.listen(3000);

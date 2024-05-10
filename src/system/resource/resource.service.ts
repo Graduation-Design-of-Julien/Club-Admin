@@ -14,6 +14,7 @@ import { DeleteResourceDto } from './dto/delete-resource.dto';
 import { CreateBorrowDto } from './dto/create-borrow.entity.dto';
 import { UpdateBorrowDto } from './dto/update-borrow.entity.dto';
 import { DeleteBorrowDto } from './dto/delete-borrow.entity.dto';
+import { BusinessException } from 'src/common/exceptions/business.exception';
 
 @Injectable()
 export class ResourceService {
@@ -169,7 +170,7 @@ export class ResourceService {
 
   // 通过提单ID获取借还信息
   async getBorrowByID(borrowedID: string) {
-    return await this.resourceBorrowRepository.find({
+    return await this.resourceBorrowRepository.findOne({
       where: { borrowedID },
     });
   }
@@ -192,7 +193,9 @@ export class ResourceService {
               returnTime,
             })
             .then(() => {
-              return;
+              this.updateResource({ resourceID, status: 1 }).then(() => {
+                return;
+              });
             })
             .catch(() => {
               return {
@@ -212,20 +215,28 @@ export class ResourceService {
 
   // 修改借出
   async updateBorrow(updateBorrowDto: UpdateBorrowDto) {
-    const { borrowedID } = updateBorrowDto;
+    const { borrowedID, isReturn } = updateBorrowDto;
     this.getBorrowByID(borrowedID)
-      .then(() => {
-        this.resourceBorrowRepository
-          .update({ borrowedID }, { ...updateBorrowDto })
-          .then(() => {
-            return;
-          })
-          .catch(() => {
-            return {
-              code: BUSINESS_ERROR_CODE.UPDATE_FAILED,
-              message: '修改借出提单失败。',
-            };
-          });
+      .then((borrowInfo) => {
+        if (isReturn) {
+          updateBorrowDto.realReturnTime = new Date();
+          this.resourceBorrowRepository
+            .update({ borrowedID }, { ...updateBorrowDto })
+            .then(() => {
+              this.updateResource({
+                resourceID: borrowInfo.resourceID,
+                status: 0,
+              }).then(() => {
+                return;
+              });
+            })
+            .catch(() => {
+              return {
+                code: BUSINESS_ERROR_CODE.UPDATE_FAILED,
+                message: '修改借出提单失败。',
+              };
+            });
+        }
       })
       .catch(() => {
         return {
@@ -239,24 +250,31 @@ export class ResourceService {
   async deleteBorrowDto(deleteBorrowDto: DeleteBorrowDto) {
     const { borrowedID } = deleteBorrowDto;
     this.getBorrowByID(borrowedID)
-      .then(() => {
-        this.resourceBorrowRepository
-          .update({ borrowedID }, { deleted: 1 })
-          .then(() => {
-            return;
-          })
-          .catch(() => {
-            return {
-              code: BUSINESS_ERROR_CODE.UPDATE_FAILED,
-              message: '删除失败。',
-            };
+      .then((borrowInfo) => {
+        if (!borrowInfo.isReturn) {
+          throw new BusinessException({
+            code: BUSINESS_ERROR_CODE.DELETE_FAILED,
+            message: '物资未归还，不可删除。',
           });
+        } else {
+          this.resourceBorrowRepository
+            .update({ borrowedID }, { deleted: 1 })
+            .then(() => {
+              return;
+            })
+            .catch(() => {
+              return {
+                code: BUSINESS_ERROR_CODE.UPDATE_FAILED,
+                message: '删除失败。',
+              };
+            });
+        }
       })
       .catch(() => {
-        return {
+        throw new BusinessException({
           code: BUSINESS_ERROR_CODE.NO_EXIST,
-          message: '物资不存在。',
-        };
+          message: '提单不存在。',
+        });
       });
   }
 }

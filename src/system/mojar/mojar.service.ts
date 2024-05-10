@@ -69,17 +69,26 @@ export class MojarService {
 
   // 删除专业（逻辑删除）
   async deleteMojar(deleteMojarDto: DeleteMojarDto) {
-    const existMojar = await this.findMojarByCode(deleteMojarDto.mojarCode);
-    if (existMojar) {
-      const result = await this.mojarRepository.remove(existMojar);
-      if (result) {
-        return;
-      }
-    } else {
-      throw new BusinessException({
-        code: BUSINESS_ERROR_CODE.NO_EXIST,
-        message: '专业不存在。',
+    const { mojarCode } = deleteMojarDto;
+    this.findMojarByCode(mojarCode)
+      .then(() => {
+        this.mojarRepository
+          .update({ mojarCode }, { deleted: 1 })
+          .then(() => {
+            return;
+          })
+          .catch(() => {
+            throw new BusinessException({
+              code: BUSINESS_ERROR_CODE.DELETE_FAILED,
+              message: '删除失败。',
+            });
+          });
+      })
+      .catch(() => {
+        throw new BusinessException({
+          code: BUSINESS_ERROR_CODE.NO_EXIST,
+          message: '学院不存在。',
+        });
       });
-    }
   }
 }

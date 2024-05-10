@@ -3,6 +3,7 @@ import { DirectionService } from './direction.service';
 import { CreateDirectionDto } from './dto/create-direction.dto';
 import { UpdateDirectionDto } from './dto/update-direction.dto';
 import { DeleteDirectionDto } from './dto/delete-direction.dto';
+import { Public } from 'src/common/decorator/public.decorator';
 
 @Controller('direction')
 export class DirectionController {
@@ -19,6 +20,7 @@ export class DirectionController {
   }
 
   @Post('get')
+  @Public()
   async get() {
     return this.directionService.getAllDirections();
   }

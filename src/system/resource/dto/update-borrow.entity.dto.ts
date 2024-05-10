@@ -12,7 +12,7 @@ export class UpdateBorrowDto extends PartialType(CreateBorrowDto) {
 
   returnTime?: Date;
 
-  realReturnType?: Date;
+  realReturnTime?: Date;
 
-  isTeturn?: boolean;
+  isReturn?: boolean;
 }

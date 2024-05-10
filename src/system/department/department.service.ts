@@ -81,19 +81,26 @@ export class DepartmentService {
 
   // 删除部门（逻辑删除）
   async deleteDepartment(deleteDepartmentDto: DeleteDepartmentDto) {
-    const existDepartment = await this.findDepartmentByCode(
-      deleteDepartmentDto.departmentCode,
-    );
-    if (existDepartment) {
-      const result = await this.departmentRepository.remove(existDepartment);
-      if (result) {
-        return;
-      }
-    } else {
-      throw new BusinessException({
-        code: BUSINESS_ERROR_CODE.NO_EXIST,
-        message: '部门不存在。',
+    const { departmentCode } = deleteDepartmentDto;
+    this.findDepartmentByCode(departmentCode)
+      .then(() => {
+        this.departmentRepository
+          .update({ departmentCode }, { deleted: 1 })
+          .then(() => {
+            return;
+          })
+          .catch(() => {
+            throw new BusinessException({
+              code: BUSINESS_ERROR_CODE.DELETE_FAILED,
+              message: '删除失败。',
+            });
+          });
+      })
+      .catch(() => {
+        throw new BusinessException({
+          code: BUSINESS_ERROR_CODE.NO_EXIST,
+          message: '部门不存在。',
+        });
       });
-    }
   }
 }

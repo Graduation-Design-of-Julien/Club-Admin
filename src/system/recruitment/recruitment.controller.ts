@@ -38,6 +38,7 @@ export class RecruitmentController {
   }
 
   @Post('getAllApplication')
+  @RoleAuth(USER_ROLE_LEVEL.DEPUTY_DIRECTOR)
   getAllApplication() {
     return this.recruitmentService.getAllApplication();
   }

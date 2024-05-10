@@ -3,6 +3,7 @@ import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { DeleteRoleDto } from './dto/delete-role.dto';
+import { Public } from 'src/common/decorator/public.decorator';
 
 @Controller('role')
 export class RoleController {
@@ -19,6 +20,7 @@ export class RoleController {
   }
 
   @Post('get')
+  @Public()
   async get() {
     return this.roleService.getAllRoles();
   }

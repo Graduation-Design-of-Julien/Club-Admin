@@ -3,6 +3,7 @@ import { CollegeService } from './college.service';
 import { CreateCollegeDto } from './dto/create-college.dto';
 import { UpdateCollegeDto } from './dto/update-college.dto';
 import { DeleteCollegeDto } from './dto/delete-college.dto';
+import { Public } from 'src/common/decorator/public.decorator';
 
 @Controller('college')
 export class CollegeController {
@@ -19,6 +20,7 @@ export class CollegeController {
   }
 
   @Post('get')
+  @Public()
   async get() {
     return this.collegeService.getAllColleges();
   }

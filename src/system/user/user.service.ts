@@ -12,6 +12,11 @@ import { VerifyUserDto } from './dto/verify-user.dto';
 import { ResetPwdDto } from './dto/reset-pwd.dto';
 import { LoginUserByPhoneDto, LoginUserByUidDto } from './dto/login-user.dto';
 import * as bcrypt from 'bcrypt';
+import { VerifyCode } from './entities/verify-code.entity';
+import { VerifyCodeDto } from './dto/verify-code.dto';
+import { getConfig } from 'src/common/utils/configLoader';
+import { CreateVerifyCodeDto } from './dto/create-verify-code.dto';
+const { VERIFY_CONFIG } = getConfig();
 
 @Injectable()
 export class UserService {
@@ -19,6 +24,9 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private readonly jwtService: JwtService,
+
+    @InjectRepository(VerifyCode)
+    private verifyCodeRepository: Repository<VerifyCode>,
   ) {}
 
   // 添加用户
@@ -145,23 +153,106 @@ export class UserService {
 
   // 删除用户（逻辑删除）
   async deleteUser(deleteUserDto: DeleteUserDto) {
-    const existUser = await this.findUserByUid(deleteUserDto.uid);
-    if (existUser) {
-      const result = await this.userRepository.remove(existUser);
-      if (result) {
-        return;
-      }
-    } else {
-      throw new BusinessException({
-        code: BUSINESS_ERROR_CODE.NO_EXIST,
-        message: '用户不存在。',
+    const { uid } = deleteUserDto;
+    this.findUserByUid(deleteUserDto.uid)
+      .then(() => {
+        this.userRepository
+          .update({ uid }, { deleted: 1 })
+          .then(() => {
+            return;
+          })
+          .catch(() => {
+            throw new BusinessException({
+              code: BUSINESS_ERROR_CODE.DELETE_FAILED,
+              message: '删除失败。',
+            });
+          });
+      })
+      .catch(() => {
+        throw new BusinessException({
+          code: BUSINESS_ERROR_CODE.NO_EXIST,
+          message: '用户不存在。',
+        });
       });
-    }
+  }
+
+  // 查询验证码
+  async findVerifyCodeByPhone(phoneNum: string) {
+    return await this.verifyCodeRepository.findOne({ where: { phoneNum } });
+  }
+
+  // 创建验证码
+  async createVerifyCode(createVerifyCodeDto: CreateVerifyCodeDto) {
+    const { phoneNum } = createVerifyCodeDto;
+    const code = Math.floor(Math.random() * 1000000);
+    this.findVerifyCodeByPhone(phoneNum).then((res) => {
+      const time = new Date().getTime() + 60 * 1000 * VERIFY_CONFIG.expiresTime;
+      if (res) {
+        this.verifyCodeRepository
+          .update(
+            { phoneNum },
+            { verifyCode: code.toString(), time: time.toString() },
+          )
+          .then(() => {
+            // todo
+            console.log(code);
+            return;
+          })
+          .catch(() => {
+            throw new BusinessException({
+              code: BUSINESS_ERROR_CODE.FAILED,
+              message: '验证失败。',
+            });
+          });
+      } else {
+        console.log('不存在，新建');
+        this.verifyCodeRepository
+          .save({
+            phoneNum,
+            verifyCode: code.toString(),
+            time: time.toString(),
+          })
+          .then(() => {
+            // todo
+            console.log(code);
+            return;
+          })
+          .catch(() => {
+            throw new BusinessException({
+              code: BUSINESS_ERROR_CODE.FAILED,
+              message: '验证失败。',
+            });
+          });
+      }
+    });
   }
 
   // 验证身份
-  async verifyUser(session, verifyDto: VerifyUserDto) {
-    const { uid, phoneNum, verifyCode } = verifyDto;
+  async verifyCode(verifyCodeDto: VerifyCodeDto) {
+    const { phoneNum, verifyCode } = verifyCodeDto;
+    this.findVerifyCodeByPhone(phoneNum).then((res) => {
+      if (verifyCode == res.verifyCode) {
+        if (new Date().getTime() > Number(res.time)) {
+          throw new BusinessException({
+            code: BUSINESS_ERROR_CODE.FAILED,
+            message: '验证码已过期。',
+          });
+        } else {
+          return;
+        }
+      } else {
+        console.log('进入错误处理');
+        throw new BusinessException({
+          code: BUSINESS_ERROR_CODE.FAILED,
+          message: '验证码错误。',
+        });
+      }
+    });
+  }
+
+  // 验证身份
+  async verifyUser(verifyDto: VerifyUserDto) {
+    const { uid, phoneNum } = verifyDto;
     const user = await this.userRepository.findOne({
       where: { uid, phoneNum },
     });
@@ -171,13 +262,7 @@ export class UserService {
         message: '该用户不存在。',
       });
     } else {
-      if (verifyCode) {
-        if (verifyCode == session.code) {
-          return;
-        } else {
-          return Math.floor(Math.random() * 1000000);
-        }
-      }
+      return;
     }
   }
 
@@ -209,7 +294,9 @@ export class UserService {
     }
   }
 
-  getToken(payload: { uid: string }): { accessToken: string } {
+  getToken(payload: { uid: string; userRole: number }): {
+    accessToken: string;
+  } {
     const accessToken = this.jwtService.sign(payload);
     return { accessToken };
   }
@@ -244,7 +331,10 @@ export class UserService {
     const { uid, pwd } = loginUserByUidDto;
     const user = await this.findUserByUid(uid);
     if (user && (await bcrypt.compare(pwd, user.pwd))) {
-      const accessToken = this.getToken({ uid: user.uid });
+      const accessToken = this.getToken({
+        uid: user.uid,
+        userRole: user.userRole,
+      });
       const userInfo = await this.getUserInfo(user.uid);
       return { user: userInfo[0], ...accessToken };
     } else {
@@ -257,9 +347,12 @@ export class UserService {
 
   async loginByPhone(loginUserByPhoneDto: LoginUserByPhoneDto) {
     const { phoneNum, pwd } = loginUserByPhoneDto;
-    const user = await this.findUserByUid(phoneNum);
+    const user = await this.findUserByPhone(phoneNum);
     if (user && (await bcrypt.compare(pwd, user.pwd))) {
-      const accessToken = this.getToken({ uid: user.uid });
+      const accessToken = this.getToken({
+        uid: user.uid,
+        userRole: user.userRole,
+      });
       return { user: await this.getUserInfo(user.uid), ...accessToken };
     } else {
       throw new BusinessException({

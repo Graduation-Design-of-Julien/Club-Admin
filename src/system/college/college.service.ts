@@ -81,19 +81,26 @@ export class CollegeService {
 
   // 删除学院（逻辑删除）
   async deleteCollege(deleteCollegeDto: DeleteCollegeDto) {
-    const existCollege = await this.findCollegeByCode(
-      deleteCollegeDto.collegeCode,
-    );
-    if (existCollege) {
-      const result = await this.collegeRepository.remove(existCollege);
-      if (result) {
-        return;
-      }
-    } else {
-      throw new BusinessException({
-        code: BUSINESS_ERROR_CODE.NO_EXIST,
-        message: '学院不存在。',
+    const { collegeCode } = deleteCollegeDto;
+    this.findCollegeByCode(collegeCode)
+      .then(() => {
+        this.collegeRepository
+          .update({ collegeCode }, { deleted: 1 })
+          .then(() => {
+            return;
+          })
+          .catch(() => {
+            throw new BusinessException({
+              code: BUSINESS_ERROR_CODE.DELETE_FAILED,
+              message: '删除失败。',
+            });
+          });
+      })
+      .catch(() => {
+        throw new BusinessException({
+          code: BUSINESS_ERROR_CODE.NO_EXIST,
+          message: '学院不存在。',
+        });
       });
-    }
   }
 }

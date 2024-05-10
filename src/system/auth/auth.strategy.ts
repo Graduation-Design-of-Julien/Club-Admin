@@ -22,7 +22,7 @@ export class AuthStrategy extends PassportStrategy(Strategy) {
    * 否则，将用户对象添加到请求对象中，并在之后的请求中可以使用 req.user 来获取当前登录用户。
    * @param payload
    */
-  async validate(payload: { uid: string }) {
+  async validate(payload: { uid: string; userRole: number }) {
     const user = await this.authService.validateUser(payload);
     if (!user) throw new UnauthorizedException();
     return user;
