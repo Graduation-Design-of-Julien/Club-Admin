@@ -12,6 +12,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/auth.guard';
 import { NotificationModule } from './system/notification/notification.module';
 import { ResourceModule } from './system/resource/resource.module';
+import { RecruitmentModule } from './system/recruitment/recruitment.module';
 
 // load mysql config
 const { MYSQL_CONFIG } = getConfig();
@@ -34,6 +35,7 @@ const { MYSQL_CONFIG } = getConfig();
     UserModule,
     NotificationModule,
     ResourceModule,
+    RecruitmentModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
