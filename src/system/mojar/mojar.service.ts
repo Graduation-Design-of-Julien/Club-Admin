@@ -25,7 +25,9 @@ export class MojarService {
 
   // 获取所有专业
   async getAllMojars() {
-    return await this.mojarRepository.find();
+    return await this.mojarRepository.find({
+      where: { deleted: 0 },
+    });
   }
 
   // 通过 mojarCode 查找专业

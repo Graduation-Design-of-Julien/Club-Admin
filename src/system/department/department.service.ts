@@ -35,7 +35,9 @@ export class DepartmentService {
 
   // 获取所有部门
   async getAllDepartments() {
-    return await this.departmentRepository.find();
+    return await this.departmentRepository.find({
+      where: { deleted: 0 },
+    });
   }
 
   // 通过 departmentCode 查找部门

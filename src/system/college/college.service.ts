@@ -35,7 +35,9 @@ export class CollegeService {
 
   // 获取所有学院
   async getAllColleges() {
-    return await this.collegeRepository.find();
+    return await this.collegeRepository.find({
+      where: { deleted: 0 },
+    });
   }
 
   // 通过 collegeCode 查找学院

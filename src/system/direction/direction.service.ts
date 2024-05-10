@@ -25,7 +25,9 @@ export class DirectionService {
 
   // 获取所有岗位
   async getAllDirections() {
-    return await this.directionRepository.find();
+    return await this.directionRepository.find({
+      where: { deleted: 0 },
+    });
   }
 
   // 通过 directionCode 查找岗位
