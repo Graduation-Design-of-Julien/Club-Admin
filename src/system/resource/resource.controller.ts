@@ -22,7 +22,7 @@ export class ResourceController {
     return this.resourceService.getAllResourceType();
   }
 
-  @Post('createRosourceType')
+  @Post('createResourceType')
   @RoleAuth(USER_ROLE_LEVEL.MEMBER)
   createRosourceType(@Body() createResourceTypeDto: CreateResourceTypeDto) {
     return this.resourceService.createResourceType(createResourceTypeDto);
@@ -46,7 +46,7 @@ export class ResourceController {
     return this.resourceService.getAllResourceType();
   }
 
-  @Post('createRosource')
+  @Post('createResource')
   @RoleAuth(USER_ROLE_LEVEL.MEMBER)
   createRosource(@Body() createResourceDto: CreateResourceDto) {
     return this.resourceService.createResource(createResourceDto);
