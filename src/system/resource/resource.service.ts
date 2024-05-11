@@ -113,19 +113,21 @@ export class ResourceService {
 
   // 更新物资
   async updateResource(updateResourceDto: UpdateResourceDto) {
-    const { resourceTypeID } = updateResourceDto;
-    this.findResourceByID(resourceTypeID)
-      .then(() => {
-        this.resourceRepository
-          .update({ resourceTypeID }, { ...updateResourceDto })
+    const { resourceID } = updateResourceDto;
+    await this.findResourceByID(resourceID)
+      .then(async () => {
+        console.log(updateResourceDto);
+        await this.resourceRepository
+          .update({ resourceID }, { ...updateResourceDto })
           .then(() => {
             return;
           })
-          .catch(() => {
-            return {
+          .catch((err) => {
+            console.log(err);
+            throw new BusinessException({
               code: BUSINESS_ERROR_CODE.UPDATE_FAILED,
               message: '更新失败。',
-            };
+            });
           });
       })
       .catch(() => {
