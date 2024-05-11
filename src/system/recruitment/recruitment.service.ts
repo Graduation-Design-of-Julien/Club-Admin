@@ -30,7 +30,11 @@ export class RecruitmentService {
 
   // 获取全部纳新信息
   async getAllRecruitment() {
-    return await this.recruitmentepository.find({ where: { deleted: 0 } });
+    return await this.recruitmentepository
+      .find({ where: { deleted: 0 } })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   // 创建纳新

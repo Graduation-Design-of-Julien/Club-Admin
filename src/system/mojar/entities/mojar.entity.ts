@@ -15,7 +15,7 @@ export class Mojar {
   mojarName: string;
 
   @Column()
-  college: string;
+  collegeCode: string;
 
   @CreateDateColumn()
   createTime: Date;

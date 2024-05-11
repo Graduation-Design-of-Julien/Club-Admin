@@ -8,5 +8,5 @@ export class ResetPwdDto {
   pwd: string;
 
   @IsNotEmpty()
-  comfirm: string;
+  confirm: string;
 }

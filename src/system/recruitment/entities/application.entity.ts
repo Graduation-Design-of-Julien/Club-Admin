@@ -1,5 +1,11 @@
-import { PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import {
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  Entity,
+} from 'typeorm';
 
+@Entity('applicationtable')
 export class ApplicationTable {
   @PrimaryGeneratedColumn()
   applicationID: string;

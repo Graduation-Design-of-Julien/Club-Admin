@@ -48,7 +48,7 @@ export class MojarService {
   async updateMojar(updateMojarDto: UpdateMojarDto) {
     const existMojar = await this.findMojarByCode(updateMojarDto.mojarCode);
     if (existMojar) {
-      this.mojarRepository
+      await this.mojarRepository
         .update(
           {
             mojarCode: updateMojarDto.mojarCode,

@@ -24,7 +24,7 @@ export class ResourceBorrow {
   @Column({ type: 'datetime' })
   returnTime: Date;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'datetime', nullable: true })
   realReturnTime: Date;
 
   @Column({ type: 'boolean', default: false })

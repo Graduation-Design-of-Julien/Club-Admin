@@ -180,67 +180,85 @@ export class ResourceService {
   // 创建借出
   async createBorrow(uid: string, createBorrowDto: CreateBorrowDto) {
     const { resourceID, returnTime } = createBorrowDto;
-    this.findResourceByID(resourceID)
-      .then((res) => {
-        if (res.status == 1) {
-          return {
-            code: BUSINESS_ERROR_CODE.FAILED,
-            message: '该物品已被借出。',
-          };
-        } else {
-          this.resourceBorrowRepository
-            .save({
-              uid,
+    const res = await this.findResourceByID(resourceID);
+    if (res) {
+      if (res.status == 1) {
+        throw new BusinessException({
+          code: BUSINESS_ERROR_CODE.FAILED,
+          message: '该物品已被借出。',
+        });
+      } else {
+        console.log('物品未借出');
+        await this.resourceBorrowRepository
+          .save({
+            uid,
+            resourceID,
+            returnTime,
+          })
+          .then(async () => {
+            await this.updateResource({
               resourceID,
-              returnTime,
+              status: 1,
             })
-            .then(() => {
-              this.updateResource({ resourceID, status: 1 }).then(() => {
+              .then(() => {
                 return;
+              })
+              .catch(() => {
+                throw new BusinessException({
+                  code: BUSINESS_ERROR_CODE.UPDATE_FAILED,
+                  message: '更新物资状态失败。',
+                });
               });
-            })
-            .catch(() => {
-              return {
-                code: BUSINESS_ERROR_CODE.CREATE_FAILED,
-                message: '创建借出提单失败。',
-              };
+          })
+          .catch(() => {
+            throw new BusinessException({
+              code: BUSINESS_ERROR_CODE.CREATE_FAILED,
+              message: '创建借出提单失败。',
             });
-        }
-      })
-      .catch(() => {
-        return {
-          code: BUSINESS_ERROR_CODE.NO_EXIST,
-          message: '该物品不存在。',
-        };
+          });
+      }
+    } else {
+      throw new BusinessException({
+        code: BUSINESS_ERROR_CODE.NO_EXIST,
+        message: '该物品不存在。',
       });
+    }
   }
 
   // 修改借出
   async updateBorrow(updateBorrowDto: UpdateBorrowDto) {
     const { borrowedID, isReturn } = updateBorrowDto;
-    this.getBorrowByID(borrowedID)
-      .then((borrowInfo) => {
+    await this.getBorrowByID(borrowedID)
+      .then(async (borrowInfo) => {
         if (isReturn) {
           updateBorrowDto.realReturnTime = new Date();
-          this.resourceBorrowRepository
+          await this.resourceBorrowRepository
             .update({ borrowedID }, { ...updateBorrowDto })
-            .then(() => {
-              this.updateResource({
+            .then(async () => {
+              await this.updateResource({
                 resourceID: borrowInfo.resourceID,
                 status: 0,
-              }).then(() => {
-                return;
-              });
+              })
+                .then(() => {
+                  return;
+                })
+                .catch(() => {
+                  throw new BusinessException({
+                    code: BUSINESS_ERROR_CODE.UPDATE_FAILED,
+                    message: '更新物资状态失败。',
+                  });
+                });
             })
             .catch(() => {
-              return {
+              throw new BusinessException({
                 code: BUSINESS_ERROR_CODE.UPDATE_FAILED,
                 message: '修改借出提单失败。',
-              };
+              });
             });
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err);
         return {
           code: BUSINESS_ERROR_CODE.NO_EXIST,
           message: '该提单不存在。',

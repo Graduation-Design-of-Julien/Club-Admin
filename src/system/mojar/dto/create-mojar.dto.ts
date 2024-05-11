@@ -5,5 +5,5 @@ export class CreateMojarDto {
   mojarName: string;
 
   @IsNotEmpty({ message: '学院不能为空。' })
-  collegeCode: number;
+  collegeCode: string;
 }

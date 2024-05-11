@@ -1,10 +1,12 @@
 import {
   Column,
   CreateDateColumn,
+  Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
+@Entity('recruitment')
 export class Recruitment {
   @PrimaryGeneratedColumn()
   recruitmentID: string;
@@ -15,19 +17,19 @@ export class Recruitment {
   @Column()
   recruitmentTime: Date;
 
-  @Column('simple-array')
+  @Column('simple-array', { nullable: true })
   recruitmentDepaList: string;
 
-  @Column('simple-array')
+  @Column('simple-array', { nullable: true })
   recruitmentDirecList: string;
 
-  @Column('simple-array')
+  @Column('simple-array', { nullable: true })
   recruitmentRoleList: string;
 
-  @Column('simple-array')
+  @Column('simple-array', { nullable: true })
   collegeCodeList: string;
 
-  @Column('simple-array')
+  @Column('simple-array', { nullable: true })
   mojarCodeList: string;
 
   /**

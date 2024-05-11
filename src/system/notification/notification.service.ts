@@ -67,21 +67,23 @@ export class NotificationService {
   // 删除收件信息
   async deleteInbox(uid: string, deleteInboxDto: DeleteInboxDto) {
     const { notificationID } = deleteInboxDto;
-    this.findInbox(notificationID, uid)
-      .then(() => {
-        this.inboxRepository
+    await this.findInbox(notificationID, uid)
+      .then(async () => {
+        await this.inboxRepository
           .update({ notificationID, recipientID: uid }, { deleted: 1 })
           .then(() => {
             return;
           })
-          .catch(() => {
+          .catch((err) => {
+            console.log(err);
             throw new BusinessException({
               code: BUSINESS_ERROR_CODE.DELETE_FAILED,
               message: '删除失败。',
             });
           });
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err);
         throw new BusinessException({
           code: BUSINESS_ERROR_CODE.NO_EXIST,
           message: '通知不存在。',
@@ -174,45 +176,46 @@ export class NotificationService {
   // 修改发件信息
   async updateOutbox(uid: string, updateOutboxDto: UpdateOutboxDto) {
     const { notificationID } = updateOutboxDto;
-    this.findOutboxById(notificationID)
-      .then((res) => {
-        if (res.sender != uid) {
-          throw new BusinessException({
-            code: BUSINESS_ERROR_CODE.USER_INVALID,
-            message: '无法删除他人的发件信息。',
-          });
-        } else {
-          this.outboxRepository
-            .update({ notificationID }, { ...updateOutboxDto })
-            .then(() => {
-              this.findOutboxById(notificationID).then((res) => {
-                this._addInbox(notificationID, {
-                  title: res.title,
-                  content: res.content,
-                  recipients: res.recipients,
-                  status: res.status,
-                }).catch(() => {
-                  throw new BusinessException({
-                    code: BUSINESS_ERROR_CODE.UPDATE_FAILED,
-                    message: '创建收件信息失败。',
-                  });
-                });
-              });
-            })
-            .catch(() => {
-              throw new BusinessException({
-                code: BUSINESS_ERROR_CODE.UPDATE_FAILED,
-                message: '更新信息失败。',
-              });
-            });
-        }
-      })
-      .catch(() => {
+    const findOutboxResult = await this.findOutboxById(notificationID);
+    if (findOutboxResult) {
+      if (findOutboxResult.sender !== uid) {
         throw new BusinessException({
-          code: BUSINESS_ERROR_CODE.NO_EXIST,
-          message: '通知不存在。',
+          code: BUSINESS_ERROR_CODE.USER_INVALID,
+          message: '无法修改他人的发件信息。',
         });
+      } else {
+        const outboxUpdateResult = await this.outboxRepository.update(
+          { notificationID },
+          { ...updateOutboxDto },
+        );
+        if (outboxUpdateResult) {
+          const findoutboxResult = await this.findOutboxById(notificationID);
+          if (findoutboxResult) {
+            this._addInbox(notificationID, {
+              title: findoutboxResult.title,
+              content: findoutboxResult.content,
+              recipients: findoutboxResult.recipients,
+              status: findoutboxResult.status,
+            });
+          } else {
+            throw new BusinessException({
+              code: BUSINESS_ERROR_CODE.UPDATE_FAILED,
+              message: '创建收件信息失败。',
+            });
+          }
+        } else {
+          throw new BusinessException({
+            code: BUSINESS_ERROR_CODE.UPDATE_FAILED,
+            message: '更新信息失败。',
+          });
+        }
+      }
+    } else {
+      throw new BusinessException({
+        code: BUSINESS_ERROR_CODE.NO_EXIST,
+        message: '通知不存在。',
       });
+    }
   }
 
   // 删除发件信息

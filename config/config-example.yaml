@@ -18,3 +18,12 @@ JWT_CONFIG:
   secretKey: ''
   # jwt有效期
   expiresTime: '8h'
+
+VERIFY_CONFIG:
+  # 验证码有效期，分钟
+  expiresTime: 10
+
+# 腾讯云短信配置
+TENCENT_CLOUD_CONFIG:
+  secretId: ''
+  secretKey: ''
