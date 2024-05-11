@@ -53,4 +53,10 @@ export class NotificationController {
   findInboxByRecipientID(@Request() req) {
     return this.notificationService.findInboxByRecipientID(req.user.uid);
   }
+
+  @Post('getNotificationByID')
+  @RoleAuth(USER_ROLE_LEVEL.MEMBER)
+  findNotificationByID(@Body() body: { notificationID: string }) {
+    return this.notificationService.findNotificationByID(body.notificationID);
+  }
 }

@@ -29,6 +29,10 @@ export class NotificationService {
     });
   }
 
+  async findNotificationByID(notificationID: string) {
+    return await this.outboxRepository.findOne({ where: { notificationID } });
+  }
+
   async findInboxByRecipientID(recipientID: string) {
     return await this.inboxRepository.find({
       where: { recipientID, deleted: 0 },
@@ -38,7 +42,7 @@ export class NotificationService {
   // 修改收件信息
   async updateInbox(uid: string, updateInboxDto: UpdateInboxDto) {
     const { notificationID, status } = updateInboxDto;
-    this.findInbox(notificationID, uid)
+    await this.findInbox(notificationID, uid)
       .then(() => {
         this.inboxRepository
           .update({ notificationID, recipientID: uid }, { status })
@@ -92,8 +96,8 @@ export class NotificationService {
       status: 1,
       recipientID: '',
     };
-    const recipients = JSON.parse(createOutboxDto.recipients);
-    for (const key in recipients) {
+    const recipients = createOutboxDto.recipients;
+    for (const key in recipients as any) {
       const recipientID = recipients[key];
       const result = await this.findInbox(notificationID, recipientID);
       if (!result) {
