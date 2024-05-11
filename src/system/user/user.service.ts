@@ -17,6 +17,7 @@ import { VerifyCodeDto } from './dto/verify-code.dto';
 import { getConfig } from 'src/common/utils/configLoader';
 import { CreateVerifyCodeDto } from './dto/create-verify-code.dto';
 const { VERIFY_CONFIG } = getConfig();
+import { sendCode } from '../../common/utils/sendSms';
 
 @Injectable()
 export class UserService {
@@ -73,6 +74,7 @@ export class UserService {
   // 获取所有用户
   async getAllUsers() {
     return await this.userRepository.find({
+      where: { deleted: 0 },
       select: [
         'uid',
         'userName',
@@ -154,21 +156,23 @@ export class UserService {
   // 删除用户（逻辑删除）
   async deleteUser(deleteUserDto: DeleteUserDto) {
     const { uid } = deleteUserDto;
-    this.findUserByUid(deleteUserDto.uid)
-      .then(() => {
-        this.userRepository
+    await this.findUserByUid(deleteUserDto.uid)
+      .then(async () => {
+        await this.userRepository
           .update({ uid }, { deleted: 1 })
           .then(() => {
             return;
           })
-          .catch(() => {
+          .catch((err) => {
+            console.log(err);
             throw new BusinessException({
               code: BUSINESS_ERROR_CODE.DELETE_FAILED,
               message: '删除失败。',
             });
           });
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err);
         throw new BusinessException({
           code: BUSINESS_ERROR_CODE.NO_EXIST,
           message: '用户不存在。',
@@ -185,16 +189,21 @@ export class UserService {
   async createVerifyCode(createVerifyCodeDto: CreateVerifyCodeDto) {
     const { phoneNum } = createVerifyCodeDto;
     const code = Math.floor(Math.random() * 1000000);
-    this.findVerifyCodeByPhone(phoneNum).then((res) => {
+    await this.findVerifyCodeByPhone(phoneNum).then(async (res) => {
       const time = new Date().getTime() + 60 * 1000 * VERIFY_CONFIG.expiresTime;
       if (res) {
-        this.verifyCodeRepository
+        await this.verifyCodeRepository
           .update(
             { phoneNum },
             { verifyCode: code.toString(), time: time.toString() },
           )
           .then(() => {
             // todo
+            sendCode(
+              ['+86' + phoneNum],
+              code.toString(),
+              VERIFY_CONFIG.expiresTime + '',
+            );
             console.log(code);
             return;
           })
@@ -205,7 +214,6 @@ export class UserService {
             });
           });
       } else {
-        console.log('不存在，新建');
         this.verifyCodeRepository
           .save({
             phoneNum,
@@ -230,7 +238,7 @@ export class UserService {
   // 验证身份
   async verifyCode(verifyCodeDto: VerifyCodeDto) {
     const { phoneNum, verifyCode } = verifyCodeDto;
-    this.findVerifyCodeByPhone(phoneNum).then((res) => {
+    await this.findVerifyCodeByPhone(phoneNum).then((res) => {
       if (verifyCode == res.verifyCode) {
         if (new Date().getTime() > Number(res.time)) {
           throw new BusinessException({
@@ -241,7 +249,6 @@ export class UserService {
           return;
         }
       } else {
-        console.log('进入错误处理');
         throw new BusinessException({
           code: BUSINESS_ERROR_CODE.FAILED,
           message: '验证码错误。',
@@ -268,10 +275,10 @@ export class UserService {
 
   // 重置密码
   async resetPwd(resetPwdDto: ResetPwdDto) {
-    const { uid, pwd, comfirm } = resetPwdDto;
+    const { uid, pwd, confirm } = resetPwdDto;
     const user = await this.findUserByUid(uid);
     if (user) {
-      if (comfirm == pwd) {
+      if (confirm == pwd) {
         const salt = bcrypt.genSaltSync(10);
         const password = bcrypt.hashSync(pwd, salt);
         this.userRepository
@@ -303,7 +310,7 @@ export class UserService {
 
   // 通过uid获取有限用户信息
   async getUserInfo(uid: string) {
-    return await this.userRepository.find({
+    return await this.userRepository.findOne({
       where: { uid },
       select: [
         'uid',
